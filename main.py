@@ -7,7 +7,7 @@ import os
 from collections import Counter
 
 # 保存ディレクトリ
-data_dir = '../data/'
+data_directory = '../data/'
 
 #twitter object
 api_key             = config.API_KEY
