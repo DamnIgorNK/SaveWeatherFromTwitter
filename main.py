@@ -23,6 +23,15 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 
+#天気情報
+# WEATHER_DICT = {'晴':'Sunny',
+#                 '曇':'Cloudy',
+#                 'くもり':'Cloudy',
+#                 '雨':'Rainy',
+#                 '雷':'Thunder',
+#                 '雪':'Snowy'}
+
+
 def main():
     #入力する地名
     search_keyword = input('地名を入力してください：')
