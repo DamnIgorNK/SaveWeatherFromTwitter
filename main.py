@@ -35,7 +35,7 @@ WEATHER_DICT = {'晴':'Sunny',
 def main():
     #入力する地名
     search_keyword = input('地名を入力してください：')
-    item_num = 4 # 4個くらい拾ってくれりゃいける
+    item_num = 6 # 6個くらい拾ってくれりゃいける
 
     tweets = tweepy.Cursor(api.search_tweets, q=search_keyword, lang='ja').items(item_num)
     for tweet in tweets:
