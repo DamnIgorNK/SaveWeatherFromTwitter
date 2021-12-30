@@ -3,8 +3,8 @@ import urllib.request, urllib.error
 import pandas as pd
 import config
 import tweepy
-import os
 from collections import Counter
+import numpy as np
 
 # 保存ディレクトリ
 data_dir = '../data/'
@@ -23,21 +23,12 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 
-#天気情報
-WEATHER_DICT = {'晴':'Sunny',
-                '曇':'Cloudy',
-                'くもり':'Cloudy',
-                '雨':'Rainy',
-                '雷':'Thunder',
-                '雪':'Snowy'}
-
-
 def main():
     #入力する地名
     search_keyword = input('地名を入力してください：')
     item_num = 6 # 6個くらい拾ってくれりゃいける
 
-    tweets = tweepy.Cursor(api.search_tweets, q=search_keyword, lang='ja').items(item_num)
+    tweets = tweepy.Cursor(api.search_tweets, q=f'{search_keyword} 晴 OR くもり OR 曇 OR 雨 OR 雪 OR 雷', lang='ja').items(item_num)
     for tweet in tweets:
         print(tweet.text)
         print(tweet.id)
