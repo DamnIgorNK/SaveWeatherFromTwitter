@@ -3,9 +3,8 @@ import urllib.request, urllib.error
 import pandas as pd
 import config
 import tweepy
-from collections import Counter
-import numpy as np
 import time
+import datetime
 import geocoder # 位置情報APIモジュール，緯度軽度を返させる
 
 
@@ -20,21 +19,23 @@ class SearchTweetsAPI:
 
     # 天気リスト，雨雪は状態動詞の寄与を除くために「降」の字を付けている
     WEATHER_LIST = {'晴れ':0,
-                'くもり':0,
-                '雨降':0,
-                '雪降':0}
+                    'くもり':0,
+                    '雨降':0,
+                    '雪降':0}
 
-    def __init__(self):
+    def __init__(self, location):
         """
         イニシャライザ，
         呼び出しの段階でAPI認証ならびに地名の入力をさせる
         """
-        self.location = input('地名を入力してください：')
-        self.lat, self.lng = self.f_getting_geo() 
+        self.dt_today = datetime.date.today().strftime('%Y-%m-%d_')
+        self.location = location
+        self.lat = self.f_getting_geo()[0]
+        self.lng = self.f_getting_geo()[1]
         self.api = self.f_authenticating_twitter_api()
 
 
-    def f_authenticating_twitter_api(self) -> tweepy.api.API:
+    def f_authenticating_twitter_api(self):
         """
         API認証関数
         return:
@@ -43,22 +44,28 @@ class SearchTweetsAPI:
         auth = tweepy.OAuthHandler(self.api_key, self.api_key_secret)
         auth.set_access_token(self.access_token, self.access_token_secret)
         api = tweepy.API(auth)
-        print(type(api))
+
         return api
 
 
     def f_getting_geo(self) -> list: 
         """
+        入力した目的地の緯度経度を返す関数
         return:
             地名の緯度軽度（list）
         """
         ret = geocoder.osm(self.location, timeout=5.0)
+
         return ret.latlng
 
 
     def f_identifying_weather_from_tweets(self) -> str:
-    
-        q = f'晴れ OR くもり OR 雨降 OR 雪降 geocode:{self.lat},{self.lng},10km -replies'
+        """
+        ツイートを取得して天気を割り出す関数
+        return:
+            現地の天気
+        """
+        q = f'晴 OR くもり OR 雨降 OR 雪降 since:{self.dt_today}_JST geocode:{self.lat},{self.lng},10km -replies'
         item_num = 15
 
         tweets = tweepy.Cursor(
@@ -68,6 +75,7 @@ class SearchTweetsAPI:
                             ).items(item_num)
         
         for tweet in tweets:
+            print(tweet.text) # ちゃんとツイートを取得できているかどうかチェックするためprint
             for weather in self.WEATHER_LIST.keys():
                 if weather in tweet.text: self.WEATHER_LIST[weather]+=1
 
@@ -76,7 +84,8 @@ class SearchTweetsAPI:
 
 
 def main():
-    weather_the_location = SearchTweetsAPI()
+    location_input = input('場所を入力してください：')
+    weather_the_location = SearchTweetsAPI(location_input)
     ans = weather_the_location.f_identifying_weather_from_tweets()
     print(ans)
 
