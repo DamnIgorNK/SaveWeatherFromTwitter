@@ -30,8 +30,8 @@ class SearchTweetsAPI:
         """
         self.dt_today = datetime.date.today().strftime('%Y-%m-%d_')
         self.location = location
-        self.lat = self.f_getting_geo()[0]
-        self.lng = self.f_getting_geo()[1]
+        self.lat = self.f_getting_geo()[0] # 指定した地域の緯度
+        self.lng = self.f_getting_geo()[1] # 指定した地域の経度
         self.api = self.f_authenticating_twitter_api()
 
 
@@ -79,7 +79,11 @@ class SearchTweetsAPI:
             for weather in self.WEATHER_LIST.keys():
                 if weather in tweet.text: self.WEATHER_LIST[weather]+=1
 
-        weather_answer = f'現在の{self.location}の天気は{max(self.WEATHER_LIST,key=self.WEATHER_LIST.get)}であると見込まれます．'
+
+        if sum(list(self.WEATHER_LIST.values()))==0: #WEATHER_LISTのバリューが全部0なら，ツイートを取得できていないことになる
+            weather_answer = 'ツイートを取得できなかったため，天気を割り出せませんでした'
+        else:
+            weather_answer = f'現在の{self.location}の天気は{max(self.WEATHER_LIST,key=self.WEATHER_LIST.get)}であると見込まれます．'
         return weather_answer
 
 
